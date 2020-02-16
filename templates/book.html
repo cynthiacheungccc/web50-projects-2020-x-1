@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-star-rating/4.0.6/css/star-rating.min.css"
+    media="all" rel="stylesheet" type="text/css" />
+{% endblock %}
+{% block scripts %}
+{{super()}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-star-rating/4.0.6/js/star-rating.min.js"
+    type="text/javascript"></script>
+<script src="{{url_for('.static', filename='js/star-rate.js')}}"></script>
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == "success" %}
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <strong>Success!</strong>&nbsp;{{message}}
+                    </div>
+                {% else %}
+                <div class="alert alert-warning alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong>&nbsp;{{message}}
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <div class="row">
+        <div class="col-xs-10 col-md-11">
+            <div class="panel panel-default">
+                <div class="panel-heading">{{book.title}}</div>
+                <div class="panel-body">
+                    <p><strong>Book Title:&nbsp;&nbsp;</strong>{{book.author}}</p>
+                    <p><strong>Book Author:&nbsp;&nbsp;</strong>{{book.year}}</p>
+                    <p><strong>ISBN number:&nbsp;&nbsp;</strong>{{book.isbn}}</p>
+                    <p>
+                        <strong>Goodreads:&nbsp;&nbsp;</strong>
+                        <span class="text-success">{{book.work_ratings_count}}&nbsp;ratings&nbsp;&nbsp;</span>&bull;
+                        <span class="text-success">&nbsp;&nbsp;{{book.work_average_rating}}&nbsp;score</span>
+                    </p>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <form action="/review" method="post">
+                                        <div class="form-group">
+                                            <label for="score-input">My rating</label>
+                                            <input id="score-input" name="score-input" type="text" class="rating"
+                                                data-size="sm" value="5" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="comment-input">What did you think?</label>
+                                            <textarea id="comment-input" name="comment-input" class="form-control"
+                                                rows="5"></textarea>
+                                        </div>
+                                        <input name="book-isbn" type="hidden" value="{{book.isbn}}" />
+                                        <input name="user-id" type="hidden" value="{{session['user_id']}}" />
+                                        <button type="submit" class="btn btn-primary pull-right">Submit</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% for review in book.reviews %}
+                    <li class="list-group-item">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    Reviewer: {{review.user}}
+                                </div>
+                                <div class="col-md-3 col-md-offset-5">
+                                    {{review.create_date}}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <input id="score-show" type="text" class="rating" data-size="sm"
+                                        value="{{review.score}}" readonly>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">{{review.comment}}</div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
